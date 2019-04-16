@@ -2,80 +2,67 @@ package ru.stargame.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 import ru.stargame.base.BaseScreen;
+import ru.stargame.math.Rect;
 
 public class MenuScreen extends BaseScreen {
 
-    private Vector2 touch;
-    private Vector2 pos;
-    private Vector2 v;
-    private Texture img;
-    private boolean touchTrue;
+    private Texture bg;
+    private Texture textureLogo;
+    private Background background;
+    private Logo logo;
 
 
     @Override
     public void show() {
         super.show();
-        touch = new Vector2();
-        pos = new Vector2(10, 10);
-        v = new Vector2();
-        img = new Texture("badlogic.jpg");
-        touchTrue=false;
+        bg = new Texture("galaxy.jpg");
+        textureLogo = new Texture("badlogic.jpg");
+        background = new Background(new TextureRegion(bg));
+        logo = new Logo(new TextureRegion(textureLogo));
+    }
+
+    @Override
+    public void resize(Rect worldBounds) {
+        super.resize(worldBounds);
+        background.resize(worldBounds);
+        logo.resize(worldBounds);
     }
 
     @Override
     public void render(float delta) {
         super.render(delta);
-        if (touchTrue) {
-            if (Math.abs(pos.x-touch.x)<1 && Math.abs(pos.y-touch.y)<1) {
-                v.setZero();
-                touchTrue=false;
-                pos.set(touch.x, touch.y);
-            }else {
-                pos.add(v);
-            }
-        }
+        update(delta);
+        draw();
+    }
+    private void update(float delta) {
+        logo.update(delta);
+    }
+
+    private void draw() {
         batch.begin();
-        batch.draw(img, pos.x, pos.y);
+        background.draw(batch);
+        logo.draw(batch);
         batch.end();
     }
+
 
     @Override
     public void dispose() {
         super.dispose();
-        img.dispose();
+        bg.dispose();
+        textureLogo.dispose();
     }
 
     @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        touch.set(screenX, Gdx.graphics.getHeight() - screenY);
-        v=touch.cpy().sub(pos);
-        v.nor();
-        System.out.println("touchDown touch.x = " + touch.x + " touch.y = " + touch.y);
-        System.out.println("touchDown v.x = " + v.x + " v.y = " + v.y);
-        touchTrue=true;
+    public boolean touchDown(Vector2 touch, int pointer) {
+        logo.touchDown(touch, pointer);
         return false;
     }
 
-    @Override
-    public boolean keyDown(int keycode) {
-        System.out.println("keyDown keycode = " + keycode);
-        if (keycode==19) {
-            v.set(0, 3);
-            pos.add(v);
-        } else if (keycode==20) {
-            v.set(0, -3);
-            pos.add(v);
-        }else if (keycode==21) {
-            v.set(-3, 0);
-            pos.add(v);
-        }else if (keycode==22) {
-            v.set(3, 0);
-            pos.add(v);
-        }
-        return false;
-    }
+
 
 }
